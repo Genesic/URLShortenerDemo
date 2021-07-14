@@ -1,7 +1,7 @@
 package hash
 
 import (
-	"URLShortenerDemo/env"
+	"URLShortenerDemo/pkg/env"
 	"github.com/sirupsen/logrus"
 	"github.com/speps/go-hashids"
 )

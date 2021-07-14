@@ -1,8 +1,8 @@
 package url
 
 import (
-	"URLShortenerDemo/database"
-	"URLShortenerDemo/errors"
+	"URLShortenerDemo/pkg/errors"
+	"URLShortenerDemo/service/database"
 	oriError "errors"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"

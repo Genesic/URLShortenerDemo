@@ -17,5 +17,6 @@ var (
 	FetchDatabaseFailedError  = &ServiceError{500, 50002, InternalErrorMsg}
 	EncodeHashFailedError     = &ServiceError{500, 50003, InternalErrorMsg}
 
-	UrlNotFoundError = &ServiceError{404, 40401, "url not found"}
+	ValidateRequestFailedError = &ServiceError{400, 40001, "validate request failed"}
+	UrlNotFoundError           = &ServiceError{404, 40401, "url not found"}
 )

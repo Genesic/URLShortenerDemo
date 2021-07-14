@@ -1,7 +1,7 @@
 package database
 
 import (
-	"URLShortenerDemo/env"
+	"URLShortenerDemo/pkg/env"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

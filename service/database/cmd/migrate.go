@@ -1,7 +1,7 @@
 package main
 
 import (
-	"URLShortenerDemo/database"
+	"URLShortenerDemo/service/database"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )

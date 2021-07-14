@@ -1,8 +1,8 @@
 package url
 
 import (
-	"URLShortenerDemo/database"
-	"URLShortenerDemo/errors"
+	"URLShortenerDemo/pkg/errors"
+	"URLShortenerDemo/service/database"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/sirupsen/logrus"
 	. "github.com/smartystreets/goconvey/convey"

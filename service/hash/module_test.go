@@ -1,7 +1,7 @@
 package hash
 
 import (
-	"URLShortenerDemo/errors"
+	"URLShortenerDemo/pkg/errors"
 	"github.com/sirupsen/logrus"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"

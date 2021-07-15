@@ -51,7 +51,7 @@ func (m *Module) validateRequest(c *gin.Context) (*Request, *errors.ServiceError
 }
 
 func (m *Module) parseExpiredAt(expiredAt string) (time.Time, *errors.ServiceError) {
-	result, err := time.Parse("2006-01-02T15:04:05.00Z", expiredAt)
+	result, err := time.Parse("2006-01-02T15:04:05Z", expiredAt)
 	if err != nil {
 		m.log.WithFields(logrus.Fields{
 			"err":       err,

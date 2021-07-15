@@ -89,7 +89,7 @@ func TestModule_Controller(t *testing.T) {
 func initModule(ctrl *gomock.Controller) (*Module, *gin.Engine, *MockIHash, *MockIUrl) {
 	log := logrus.New()
 	db, _, _ := sqlmock.New()
-	gormDB, _ := gorm.Open(mysql.New(mysql.Config{Conn: db, SkipInitializeWithVersion: true}), &gorm.Config{})
+	gormDB, _ := gorm.Open(mysql.New(mysql.Config{Conn: db, SkipInitializeWithVersion: true}), &gorm.Config{SkipDefaultTransaction: true})
 	client := cache.New(1*time.Hour, 2*time.Hour)
 	hash := NewMockIHash(ctrl)
 	url := NewMockIUrl(ctrl)

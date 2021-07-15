@@ -1,0 +1,2 @@
+/app/migrate
+/app/main

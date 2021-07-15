@@ -2,7 +2,6 @@ package main
 
 import (
 	"URLShortenerDemo/service/database"
-	"fmt"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/sirupsen/logrus"
 )
@@ -18,5 +17,5 @@ func main() {
 		log.WithField("err", err).Fatal("auto migrate schemas failed")
 	}
 
-	log.WithField("schemas", fmt.Sprintf("%+v", Schemas)).Info("auto migrate schemas success")
+	log.Info("auto migrate schemas success")
 }

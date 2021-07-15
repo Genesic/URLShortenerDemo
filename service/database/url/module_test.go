@@ -47,8 +47,8 @@ func TestModule_Get(t *testing.T) {
 		Convey("should return UrlNotFoundError if url not found or expired", func() {
 			m, tx, mock := initModule()
 			url := genData()
-			mock.ExpectQuery("SELECT (.*) FROM `urls` WHERE expired_at > (.*) AND `urls`.`id` = (.*) ORDER BY `urls`.`id` LIMIT 1").
-				WithArgs(sqlmock.AnyArg(), url.ID).WillReturnError(gorm.ErrRecordNotFound)
+			mock.ExpectQuery("SELECT (.*) FROM `urls` WHERE `urls`.`id` = (.*) ORDER BY `urls`.`id` LIMIT 1").
+				WithArgs(url.ID).WillReturnError(gorm.ErrRecordNotFound)
 
 			result, err := m.Get(tx, url.ID)
 			So(err, ShouldEqual, errors.UrlNotFoundError)
@@ -58,8 +58,8 @@ func TestModule_Get(t *testing.T) {
 		Convey("should return FetchDatabaseFailedError if fetch url failed", func() {
 			m, tx, mock := initModule()
 			url := genData()
-			mock.ExpectQuery("SELECT (.*) FROM `urls` WHERE expired_at > (.*) AND `urls`.`id` = (.*) ORDER BY `urls`.`id` LIMIT 1").
-				WithArgs(sqlmock.AnyArg(), url.ID).WillReturnError(gorm.ErrInvalidData)
+			mock.ExpectQuery("SELECT (.*) FROM `urls` WHERE `urls`.`id` = (.*) ORDER BY `urls`.`id` LIMIT 1").
+				WithArgs(url.ID).WillReturnError(gorm.ErrInvalidData)
 
 			result, err := m.Get(tx, url.ID)
 			So(err, ShouldEqual, errors.FetchDatabaseFailedError)
@@ -70,8 +70,8 @@ func TestModule_Get(t *testing.T) {
 			m, tx, mock := initModule()
 			url := genData()
 			row := mockUrl(url)
-			mock.ExpectQuery("SELECT (.*) FROM `urls` WHERE expired_at > (.*) AND `urls`.`id` = (.*) ORDER BY `urls`.`id` LIMIT 1").
-				WithArgs(sqlmock.AnyArg(), url.ID).WillReturnRows(row)
+			mock.ExpectQuery("SELECT (.*) FROM `urls` WHERE `urls`.`id` = (.*) ORDER BY `urls`.`id` LIMIT 1").
+				WithArgs(url.ID).WillReturnRows(row)
 
 			result, err := m.Get(tx, url.ID)
 			So(err, ShouldEqual, nil)

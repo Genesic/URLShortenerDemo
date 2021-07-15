@@ -35,17 +35,6 @@ func TestModule_Controller(t *testing.T) {
 			testUtils.VerifyErrorRes(res, errors.UrlNotFoundError)
 		})
 
-		Convey("should return error if cached url is expired", func() {
-			ctrl := gomock.NewController(t)
-			m, r, hash, _ := initModule(ctrl)
-			url := genData()
-			url.ExpiredAt.Add(-1 * time.Hour)
-			m.cacheClient.Set("abc", url, time.Hour)
-			hash.EXPECT().ShortenIDtoID("abc").Return(url.ID, nil)
-			res := testUtils.FireRequest(r, http.MethodGet, "/abc", nil)
-			testUtils.VerifyErrorRes(res, errors.UrlNotFoundError)
-		})
-
 		Convey("should return error if fetch url failed", func() {
 			ctrl := gomock.NewController(t)
 			m, r, hash, url := initModule(ctrl)
@@ -55,6 +44,18 @@ func TestModule_Controller(t *testing.T) {
 			res := testUtils.FireRequest(r, http.MethodGet, "/abc", nil)
 			testUtils.VerifyErrorRes(res, errors.FetchDatabaseFailedError)
 		})
+
+		Convey("should return UrlNotFoundError if url is expired", func() {
+			ctrl := gomock.NewController(t)
+			m, r, hash, _ := initModule(ctrl)
+			url := genData()
+			url.ExpiredAt = time.Now().Add(-1 * time.Hour)
+			m.cacheClient.Set("abc", url, time.Hour)
+			hash.EXPECT().ShortenIDtoID("abc").Return(url.ID, nil)
+			res := testUtils.FireRequest(r, http.MethodGet, "/abc", nil)
+			testUtils.VerifyErrorRes(res, errors.UrlNotFoundError)
+		})
+
 
 		Convey("should return 302 if catch is hit", func() {
 			ctrl := gomock.NewController(t)
@@ -77,6 +78,8 @@ func TestModule_Controller(t *testing.T) {
 			res := testUtils.FireRequest(r, http.MethodGet, "/abc", nil)
 			So(res.Code, ShouldEqual, http.StatusFound)
 			So(res.Header().Get("Location"), ShouldEqual, urlObject.Url)
+
+			// test cache set
 			row, ok := m.cacheClient.Get("abc")
 			So(ok, ShouldEqual, true)
 			val, ok := row.(*database.Url)
@@ -106,7 +109,7 @@ func genData() *database.Url {
 	url := &database.Url{
 		ID:        123,
 		Url:       "https://example.com",
-		ExpiredAt: time.Now(),
+		ExpiredAt: time.Now().Add(time.Minute),
 	}
 
 	return url

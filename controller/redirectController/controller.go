@@ -27,6 +27,11 @@ func (m *Module) Controller(c *gin.Context) {
 		return
 	}
 
+	if err := m.verifyExpired(url); err != nil {
+		c.AbortWithStatusJSON(err.Status, err)
+		return
+	}
+
 	c.Redirect(http.StatusFound, url.Url)
 }
 
@@ -44,10 +49,7 @@ func (m *Module) getUrl(id uint, shortenId string) (*database.Url, *errors.Servi
 	row, existed := m.cacheClient.Get(shortenId)
 	if existed {
 		if val, ok := row.(*database.Url); ok {
-			if val.ExpiredAt.After(time.Now()) {
-				return val, nil
-			}
-			return nil, errors.UrlNotFoundError
+			return val, nil
 		}
 	}
 
@@ -58,4 +60,12 @@ func (m *Module) getUrl(id uint, shortenId string) (*database.Url, *errors.Servi
 
 	m.cacheClient.Set(shortenId, url, m.cfg.expired)
 	return url, nil
+}
+
+func (m *Module) verifyExpired(row *database.Url) *errors.ServiceError {
+	if row.ExpiredAt.Before(time.Now()) {
+		return errors.UrlNotFoundError
+	}
+
+	return nil
 }

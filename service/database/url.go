@@ -6,7 +6,7 @@ import (
 
 type Url struct {
 	ID        uint
-	Url       string
+	Url       string `gorm:"type:varchar(8183);not null"`
 	ExpiredAt time.Time
 }
 

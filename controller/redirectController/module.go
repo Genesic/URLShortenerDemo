@@ -12,11 +12,11 @@ import (
 
 type Module struct {
 	log         *logrus.Logger
-	cfg         *config
 	db          *gorm.DB
 	cacheClient *cache.Cache
 	hash        IHash
 	url         IUrl
+	cfg         *config
 }
 
 type config struct {

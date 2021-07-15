@@ -3,6 +3,7 @@ package main
 import (
 	"URLShortenerDemo/service/database"
 	"fmt"
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/sirupsen/logrus"
 )
 

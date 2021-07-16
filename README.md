@@ -25,7 +25,7 @@
 執行 `docker-compose up`
 
 ### database
-由於想要使用auto increment來自動產生url_id，故選擇使用關連式資料庫
+由於想要使用auto increment來自動產生url_id，故選擇使用關連式資料庫  
 而決定使用mysql的原因則是因為對於mysql較為熟悉
 
 ### 套件說明

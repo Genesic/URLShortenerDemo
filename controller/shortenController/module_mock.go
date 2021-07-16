@@ -76,9 +76,9 @@ func (m *MockIHash) EXPECT() *MockIHashMockRecorder {
 }
 
 // IDtoShortenID mocks base method.
-func (m *MockIHash) IDtoShortenID(id uint) (string, *errors.ServiceError) {
+func (m *MockIHash) IDtoUrlID(id uint) (string, *errors.ServiceError) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IDtoShortenID", id)
+	ret := m.ctrl.Call(m, "IDtoUrlID", id)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(*errors.ServiceError)
 	return ret0, ret1
@@ -87,5 +87,5 @@ func (m *MockIHash) IDtoShortenID(id uint) (string, *errors.ServiceError) {
 // IDtoShortenID indicates an expected call of IDtoShortenID.
 func (mr *MockIHashMockRecorder) IDtoShortenID(id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IDtoShortenID", reflect.TypeOf((*MockIHash)(nil).IDtoShortenID), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IDtoUrlID", reflect.TypeOf((*MockIHash)(nil).IDtoUrlID), id)
 }

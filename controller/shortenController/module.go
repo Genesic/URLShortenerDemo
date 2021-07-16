@@ -32,7 +32,7 @@ type IUrl interface {
 }
 
 type IHash interface {
-	IDtoShortenID(id uint) (string, *errors.ServiceError)
+	IDtoUrlID(id uint) (string, *errors.ServiceError)
 }
 
 func New(log *logrus.Logger, db *gorm.DB, url IUrl, hash IHash) *Module {

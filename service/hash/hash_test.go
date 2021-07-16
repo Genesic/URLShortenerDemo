@@ -11,15 +11,15 @@ func TestModule(t *testing.T) {
 	log := logrus.New()
 	hash := New(log)
 	Convey("test hash method", t, func() {
-		res, err := hash.IDtoShortenID(12)
+		res, err := hash.IDtoUrlID(12)
 		So(err, ShouldEqual, nil)
 		So(res, ShouldEqual, "lM")
 
-		id, err := hash.ShortenIDtoID("lM")
+		id, err := hash.UrlIDtoID("lM")
 		So(err, ShouldEqual, nil)
 		So(id, ShouldEqual, 12)
 
-		id, err = hash.ShortenIDtoID("abc")
+		id, err = hash.UrlIDtoID("abc")
 		So(err, ShouldEqual, errors.UrlNotFoundError)
 		So(id, ShouldEqual, 0)
 	})

@@ -30,7 +30,7 @@ func getConfig() *config {
 }
 
 type IHash interface {
-	ShortenIDtoID(shortenID string) (uint, *errors.ServiceError)
+	UrlIDtoID(shortenID string) (uint, *errors.ServiceError)
 }
 
 type IUrl interface {

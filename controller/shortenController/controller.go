@@ -37,7 +37,7 @@ func (m *Module) Controller(c *gin.Context) {
 		return
 	}
 
-	shortenId, err := m.hash.IDtoShortenID(row.ID)
+	shortenId, err := m.hash.IDtoUrlID(row.ID)
 	if err != nil {
 		c.AbortWithStatusJSON(err.Status, err)
 		return

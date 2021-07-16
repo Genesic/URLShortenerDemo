@@ -6,7 +6,7 @@ import (
 	"github.com/speps/go-hashids"
 )
 
-func (m *Module) IDtoShortenID(id uint) (string, *errors.ServiceError) {
+func (m *Module) IDtoUrlID(id uint) (string, *errors.ServiceError) {
 	hashID, _ := hashids.NewWithData(m.hd)
 	value, err := hashID.EncodeInt64([]int64{int64(id)})
 	if err != nil {
@@ -19,7 +19,7 @@ func (m *Module) IDtoShortenID(id uint) (string, *errors.ServiceError) {
 	return value, nil
 }
 
-func (m *Module) ShortenIDtoID(shortenID string) (uint, *errors.ServiceError) {
+func (m *Module) UrlIDtoID(shortenID string) (uint, *errors.ServiceError) {
 	hashID, _ := hashids.NewWithData(m.hd)
 	numbers, err := hashID.DecodeInt64WithError(shortenID)
 	if err != nil {

@@ -37,9 +37,9 @@ func (m *MockIHash) EXPECT() *MockIHashMockRecorder {
 }
 
 // ShortenIDtoID mocks base method.
-func (m *MockIHash) ShortenIDtoID(shortenID string) (uint, *errors.ServiceError) {
+func (m *MockIHash) UrlIDtoID(shortenID string) (uint, *errors.ServiceError) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ShortenIDtoID", shortenID)
+	ret := m.ctrl.Call(m, "UrlIDtoID", shortenID)
 	ret0, _ := ret[0].(uint)
 	ret1, _ := ret[1].(*errors.ServiceError)
 	return ret0, ret1
@@ -48,7 +48,7 @@ func (m *MockIHash) ShortenIDtoID(shortenID string) (uint, *errors.ServiceError)
 // ShortenIDtoID indicates an expected call of ShortenIDtoID.
 func (mr *MockIHashMockRecorder) ShortenIDtoID(shortenID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShortenIDtoID", reflect.TypeOf((*MockIHash)(nil).ShortenIDtoID), shortenID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UrlIDtoID", reflect.TypeOf((*MockIHash)(nil).UrlIDtoID), shortenID)
 }
 
 // MockIUrl is a mock of IUrl interface.

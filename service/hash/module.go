@@ -7,7 +7,7 @@ import (
 )
 
 type Module struct {
-	log *logrus.Logger `inject:""`
+	log *logrus.Logger
 	hd  *hashids.HashIDData
 }
 

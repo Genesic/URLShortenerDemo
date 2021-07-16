@@ -19,19 +19,19 @@ func (m *Module) IDtoUrlID(id uint) (string, *errors.ServiceError) {
 	return value, nil
 }
 
-func (m *Module) UrlIDtoID(shortenID string) (uint, *errors.ServiceError) {
+func (m *Module) UrlIDtoID(urlId string) (uint, *errors.ServiceError) {
 	hashID, _ := hashids.NewWithData(m.hd)
-	numbers, err := hashID.DecodeInt64WithError(shortenID)
+	numbers, err := hashID.DecodeInt64WithError(urlId)
 	if err != nil {
 		m.log.WithFields(logrus.Fields{
-			"shortenID": shortenID,
-			"err":       err,
+			"urlId": urlId,
+			"err":   err,
 		}).Error("[hash] decode failed")
 		return 0, errors.UrlNotFoundError
 	} else if len(numbers) <= 0 {
 		m.log.WithFields(logrus.Fields{
-			"shortenID": shortenID,
-			"err":       err,
+			"urlId": urlId,
+			"err":   err,
 		}).Error("[hash] decode empty result")
 		return 0, errors.UrlNotFoundError
 	}

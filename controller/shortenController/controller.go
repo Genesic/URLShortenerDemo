@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -54,6 +55,16 @@ func (m *Module) validateRequest(c *gin.Context) (*Request, *errors.ServiceError
 	req := &Request{}
 	if err := c.ShouldBindJSON(req); err != nil {
 		m.log.WithField("err", err).Warn("[shortenController] validate request failed")
+		return nil, errors.ValidateRequestFailedError
+	}
+
+	// error case in https://golang.org/src/net/url/url_test.go
+	_, err := url.Parse(req.Url)
+	if err != nil {
+		m.log.WithFields(logrus.Fields{
+			"err": err,
+			"url": req.Url,
+		}).Warn("[shortenController] invalid url")
 		return nil, errors.ValidateRequestFailedError
 	}
 

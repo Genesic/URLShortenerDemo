@@ -28,6 +28,11 @@ func TestModule_Controller(t *testing.T) {
 			testUtils.VerifyErrorRes(res, errors.ValidateRequestFailedError)
 
 			req, _, _ = genData()
+			req.Url = "%"
+			res = testUtils.FireRequest(r, http.MethodPost, path.ShortenApiPath, req)
+			testUtils.VerifyErrorRes(res, errors.ValidateRequestFailedError)
+
+			req, _, _ = genData()
 			req.ExpiredAt = ""
 			res = testUtils.FireRequest(r, http.MethodPost, path.ShortenApiPath, req)
 			testUtils.VerifyErrorRes(res, errors.ValidateRequestFailedError)

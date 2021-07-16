@@ -9,7 +9,6 @@ import (
 	"URLShortenerDemo/service/database/url"
 	"URLShortenerDemo/service/hash"
 	"github.com/gin-gonic/gin"
-	_ "github.com/joho/godotenv/autoload"
 	"github.com/patrickmn/go-cache"
 	"github.com/sirupsen/logrus"
 	ginlogrus "github.com/toorop/gin-logrus"

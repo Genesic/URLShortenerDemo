@@ -8,6 +8,16 @@ import (
 	"time"
 )
 
+type Request struct {
+	Url       string `json:"url" binding:"required"`
+	ExpiredAt string `json:"expireAt" binding:"required"`
+}
+
+type Response struct {
+	Id         string `json:"id"`
+	ShortenUrl string `json:"shortenUrl"`
+}
+
 func (m *Module) Controller(c *gin.Context) {
 	req, err := m.validateRequest(c)
 	if err != nil {

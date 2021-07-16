@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+type Request struct {
+	ShortenId string `uri:"shorten_id" binding:"required"`
+}
+
 func (m *Module) Controller(c *gin.Context) {
 	req, err := m.validateRequest(c)
 	if err != nil {

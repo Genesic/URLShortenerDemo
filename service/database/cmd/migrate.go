@@ -2,7 +2,6 @@ package main
 
 import (
 	"URLShortenerDemo/service/database"
-	_ "github.com/joho/godotenv/autoload"
 	"github.com/sirupsen/logrus"
 )
 

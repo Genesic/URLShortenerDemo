@@ -45,3 +45,15 @@
     golang的測試框架
 ##### go-hashids
     用來替url的id進行hash產生url_id
+    
+### script 說明
+##### Dockerfile
+    用來製作URLShortenerDemo的docker image
+##### docker-compose.yml
+    用來啟動mysql跟URLShortenerDemo的docker container的script
+##### wait-for-it.sh
+    在docker-compose.yml中用來讓URLShortenerDemo等待mysql啟動完再執行指令的script
+##### start.sh
+    在wait-for-it.sh結束後執行的指令，會先進行db的migrate後再啟動URLShortenerDemo
+##### coverage.sh
+    計算coverage的script，結果儲存在coverage內

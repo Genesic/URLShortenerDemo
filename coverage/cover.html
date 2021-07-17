@@ -1,0 +1,748 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>redirectController: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">URLShortenerDemo/controller/redirectController/controller.go (87.9%)</option>
+				
+				<option value="file1">URLShortenerDemo/controller/redirectController/module.go (100.0%)</option>
+				
+				<option value="file2">URLShortenerDemo/controller/redirectController/module_mock.go (100.0%)</option>
+				
+				<option value="file3">URLShortenerDemo/controller/shortenController/controller.go (100.0%)</option>
+				
+				<option value="file4">URLShortenerDemo/controller/shortenController/module.go (100.0%)</option>
+				
+				<option value="file5">URLShortenerDemo/controller/shortenController/module_mock.go (100.0%)</option>
+				
+				<option value="file6">URLShortenerDemo/pkg/env/env.go (100.0%)</option>
+				
+				<option value="file7">URLShortenerDemo/service/database/url/create.go (100.0%)</option>
+				
+				<option value="file8">URLShortenerDemo/service/database/url/get.go (100.0%)</option>
+				
+				<option value="file9">URLShortenerDemo/service/database/url/module.go (100.0%)</option>
+				
+				<option value="file10">URLShortenerDemo/service/hash/hash.go (73.3%)</option>
+				
+				<option value="file11">URLShortenerDemo/service/hash/module.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package redirectController
+
+import (
+        "URLShortenerDemo/pkg/errors"
+        "URLShortenerDemo/service/database"
+        "github.com/gin-gonic/gin"
+        "net/http"
+        "time"
+)
+
+type Request struct {
+        ShortenId string `uri:"shorten_id" binding:"required"`
+}
+
+func (m *Module) Controller(c *gin.Context) <span class="cov8" title="1">{
+        req, err := m.validateRequest(c)
+        if err != nil </span><span class="cov0" title="0">{
+                c.AbortWithStatusJSON(err.Status, err)
+                return
+        }</span>
+
+        <span class="cov8" title="1">id, err := m.hash.UrlIDtoID(req.ShortenId)
+        if err != nil </span><span class="cov8" title="1">{
+                c.AbortWithStatusJSON(err.Status, err)
+                return
+        }</span>
+
+        <span class="cov8" title="1">url, err := m.getUrl(id, req.ShortenId)
+        if err != nil </span><span class="cov8" title="1">{
+                c.AbortWithStatusJSON(err.Status, err)
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := m.verifyExpired(url); err != nil </span><span class="cov8" title="1">{
+                c.AbortWithStatusJSON(err.Status, err)
+                return
+        }</span>
+
+        <span class="cov8" title="1">c.Redirect(http.StatusFound, url.Url)</span>
+}
+
+func (m *Module) validateRequest(c *gin.Context) (*Request, *errors.ServiceError) <span class="cov8" title="1">{
+        req := &amp;Request{}
+        if err := c.ShouldBindUri(req); err != nil </span><span class="cov0" title="0">{
+                m.log.WithField("err", err).Warn("[shortenController] validate request failed")
+                return nil, errors.ValidateRequestFailedError
+        }</span>
+
+        <span class="cov8" title="1">return req, nil</span>
+}
+
+func (m *Module) getUrl(id uint, shortenId string) (*database.Url, *errors.ServiceError) <span class="cov8" title="1">{
+        row, existed := m.cacheClient.Get(shortenId)
+        if existed </span><span class="cov8" title="1">{
+                if val, ok := row.(*database.Url); ok </span><span class="cov8" title="1">{
+                        return val, nil
+                }</span>
+        }
+
+        <span class="cov8" title="1">url, err := m.url.Get(m.db, id)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">m.cacheClient.Set(shortenId, url, m.cfg.expired)
+        return url, nil</span>
+}
+
+func (m *Module) verifyExpired(row *database.Url) *errors.ServiceError <span class="cov8" title="1">{
+        if row.ExpiredAt.Before(time.Now()) </span><span class="cov8" title="1">{
+                return errors.UrlNotFoundError
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package redirectController
+
+import (
+        "URLShortenerDemo/pkg/env"
+        "URLShortenerDemo/pkg/errors"
+        "URLShortenerDemo/service/database"
+        "github.com/patrickmn/go-cache"
+        "github.com/sirupsen/logrus"
+        "gorm.io/gorm"
+        "time"
+)
+
+type Module struct {
+        log         *logrus.Logger
+        db          *gorm.DB
+        cacheClient *cache.Cache
+        hash        IHash
+        url         IUrl
+        cfg         *config
+}
+
+type config struct {
+        expired time.Duration
+}
+
+func getConfig() *config <span class="cov8" title="1">{
+        return &amp;config{
+                expired: time.Duration(env.GetDefaultInt("cache_expired", 3600)) * time.Second,
+        }
+}</span>
+
+type IHash interface {
+        UrlIDtoID(shortenID string) (uint, *errors.ServiceError)
+}
+
+type IUrl interface {
+        Get(tx *gorm.DB, id uint) (*database.Url, *errors.ServiceError)
+}
+
+func New(log *logrus.Logger, db *gorm.DB, cacheClient *cache.Cache, hash IHash, url IUrl) *Module <span class="cov8" title="1">{
+        return &amp;Module{
+                log:         log,
+                cfg:         getConfig(),
+                db:          db,
+                cacheClient: cacheClient,
+                hash:        hash,
+                url:         url,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">// Code generated by MockGen. DO NOT EDIT.
+// Source: module.go
+
+// Package redirectController is a generated GoMock package.
+package redirectController
+
+import (
+        errors "URLShortenerDemo/pkg/errors"
+        database "URLShortenerDemo/service/database"
+        reflect "reflect"
+
+        gomock "github.com/golang/mock/gomock"
+        gorm "gorm.io/gorm"
+)
+
+// MockIHash is a mock of IHash interface.
+type MockIHash struct {
+        ctrl     *gomock.Controller
+        recorder *MockIHashMockRecorder
+}
+
+// MockIHashMockRecorder is the mock recorder for MockIHash.
+type MockIHashMockRecorder struct {
+        mock *MockIHash
+}
+
+// NewMockIHash creates a new mock instance.
+func NewMockIHash(ctrl *gomock.Controller) *MockIHash <span class="cov8" title="1">{
+        mock := &amp;MockIHash{ctrl: ctrl}
+        mock.recorder = &amp;MockIHashMockRecorder{mock}
+        return mock
+}</span>
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockIHash) EXPECT() *MockIHashMockRecorder <span class="cov8" title="1">{
+        return m.recorder
+}</span>
+
+// ShortenIDtoID mocks base method.
+func (m *MockIHash) UrlIDtoID(shortenID string) (uint, *errors.ServiceError) <span class="cov8" title="1">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "UrlIDtoID", shortenID)
+        ret0, _ := ret[0].(uint)
+        ret1, _ := ret[1].(*errors.ServiceError)
+        return ret0, ret1
+}</span>
+
+// ShortenIDtoID indicates an expected call of ShortenIDtoID.
+func (mr *MockIHashMockRecorder) ShortenIDtoID(shortenID interface{}) *gomock.Call <span class="cov8" title="1">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UrlIDtoID", reflect.TypeOf((*MockIHash)(nil).UrlIDtoID), shortenID)
+}</span>
+
+// MockIUrl is a mock of IUrl interface.
+type MockIUrl struct {
+        ctrl     *gomock.Controller
+        recorder *MockIUrlMockRecorder
+}
+
+// MockIUrlMockRecorder is the mock recorder for MockIUrl.
+type MockIUrlMockRecorder struct {
+        mock *MockIUrl
+}
+
+// NewMockIUrl creates a new mock instance.
+func NewMockIUrl(ctrl *gomock.Controller) *MockIUrl <span class="cov8" title="1">{
+        mock := &amp;MockIUrl{ctrl: ctrl}
+        mock.recorder = &amp;MockIUrlMockRecorder{mock}
+        return mock
+}</span>
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockIUrl) EXPECT() *MockIUrlMockRecorder <span class="cov8" title="1">{
+        return m.recorder
+}</span>
+
+// Get mocks base method.
+func (m *MockIUrl) Get(tx *gorm.DB, id uint) (*database.Url, *errors.ServiceError) <span class="cov8" title="1">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "Get", tx, id)
+        ret0, _ := ret[0].(*database.Url)
+        ret1, _ := ret[1].(*errors.ServiceError)
+        return ret0, ret1
+}</span>
+
+// Get indicates an expected call of Get.
+func (mr *MockIUrlMockRecorder) Get(tx, id interface{}) *gomock.Call <span class="cov8" title="1">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockIUrl)(nil).Get), tx, id)
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package shortenController
+
+import (
+        "URLShortenerDemo/pkg/errors"
+        "github.com/gin-gonic/gin"
+        "github.com/sirupsen/logrus"
+        "net/http"
+        "net/url"
+        "time"
+)
+
+type Request struct {
+        Url       string `json:"url" binding:"required"`
+        ExpiredAt string `json:"expireAt" binding:"required"`
+}
+
+type Response struct {
+        Id         string `json:"id"`
+        ShortenUrl string `json:"shortenUrl"`
+}
+
+func (m *Module) Controller(c *gin.Context) <span class="cov8" title="1">{
+        req, err := m.validateRequest(c)
+        if err != nil </span><span class="cov8" title="1">{
+                c.AbortWithStatusJSON(err.Status, err)
+                return
+        }</span>
+
+        <span class="cov8" title="1">expiredAt, err := m.parseExpiredAt(req.ExpiredAt)
+        if err != nil </span><span class="cov8" title="1">{
+                c.AbortWithStatusJSON(err.Status, err)
+                return
+        }</span>
+
+        <span class="cov8" title="1">row, err := m.url.Create(m.db, req.Url, expiredAt)
+        if err != nil </span><span class="cov8" title="1">{
+                c.AbortWithStatusJSON(err.Status, err)
+                return
+        }</span>
+
+        <span class="cov8" title="1">shortenId, err := m.hash.IDtoUrlID(row.ID)
+        if err != nil </span><span class="cov8" title="1">{
+                c.AbortWithStatusJSON(err.Status, err)
+                return
+        }</span>
+
+        <span class="cov8" title="1">resp := &amp;Response{
+                Id:         shortenId,
+                ShortenUrl: m.cfg.domain + shortenId,
+        }
+        c.JSON(http.StatusOK, resp)</span>
+}
+
+func (m *Module) validateRequest(c *gin.Context) (*Request, *errors.ServiceError) <span class="cov8" title="1">{
+        req := &amp;Request{}
+        if err := c.ShouldBindJSON(req); err != nil </span><span class="cov8" title="1">{
+                m.log.WithField("err", err).Warn("[shortenController] validate request failed")
+                return nil, errors.ValidateRequestFailedError
+        }</span>
+
+        // error case in https://golang.org/src/net/url/url_test.go
+        <span class="cov8" title="1">_, err := url.Parse(req.Url)
+        if err != nil </span><span class="cov8" title="1">{
+                m.log.WithFields(logrus.Fields{
+                        "err": err,
+                        "url": req.Url,
+                }).Warn("[shortenController] invalid url")
+                return nil, errors.ValidateRequestFailedError
+        }</span>
+
+        <span class="cov8" title="1">return req, nil</span>
+}
+
+func (m *Module) parseExpiredAt(expiredAt string) (time.Time, *errors.ServiceError) <span class="cov8" title="1">{
+        result, err := time.Parse("2006-01-02T15:04:05Z", expiredAt)
+        if err != nil </span><span class="cov8" title="1">{
+                m.log.WithFields(logrus.Fields{
+                        "err":       err,
+                        "expiredAt": expiredAt,
+                }).Error("[shortenController] parse time failed")
+                return time.Time{}, errors.ValidateRequestFailedError
+        }</span>
+
+        <span class="cov8" title="1">return result, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package shortenController
+
+import (
+        "URLShortenerDemo/pkg/env"
+        "URLShortenerDemo/pkg/errors"
+        "URLShortenerDemo/service/database"
+        "github.com/sirupsen/logrus"
+        "gorm.io/gorm"
+        "time"
+)
+
+type Module struct {
+        log  *logrus.Logger
+        cfg  *config
+        db   *gorm.DB
+        url  IUrl
+        hash IHash
+}
+
+type config struct {
+        domain string
+}
+
+func getConfig() *config <span class="cov8" title="1">{
+        return &amp;config{
+                domain: env.GetDefault("domain", "http://localhost:8080/"),
+        }
+}</span>
+
+type IUrl interface {
+        Create(tx *gorm.DB, url string, expiredAt time.Time) (*database.Url, *errors.ServiceError)
+}
+
+type IHash interface {
+        IDtoUrlID(id uint) (string, *errors.ServiceError)
+}
+
+func New(log *logrus.Logger, db *gorm.DB, url IUrl, hash IHash) *Module <span class="cov8" title="1">{
+        return &amp;Module{
+                log:  log,
+                cfg:  getConfig(),
+                db:   db,
+                url:  url,
+                hash: hash,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">// Code generated by MockGen. DO NOT EDIT.
+// Source: module.go
+
+// Package shortenController is a generated GoMock package.
+package shortenController
+
+import (
+        errors "URLShortenerDemo/pkg/errors"
+        database "URLShortenerDemo/service/database"
+        reflect "reflect"
+        time "time"
+
+        gomock "github.com/golang/mock/gomock"
+        gorm "gorm.io/gorm"
+)
+
+// MockIUrl is a mock of IUrl interface.
+type MockIUrl struct {
+        ctrl     *gomock.Controller
+        recorder *MockIUrlMockRecorder
+}
+
+// MockIUrlMockRecorder is the mock recorder for MockIUrl.
+type MockIUrlMockRecorder struct {
+        mock *MockIUrl
+}
+
+// NewMockIUrl creates a new mock instance.
+func NewMockIUrl(ctrl *gomock.Controller) *MockIUrl <span class="cov8" title="1">{
+        mock := &amp;MockIUrl{ctrl: ctrl}
+        mock.recorder = &amp;MockIUrlMockRecorder{mock}
+        return mock
+}</span>
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockIUrl) EXPECT() *MockIUrlMockRecorder <span class="cov8" title="1">{
+        return m.recorder
+}</span>
+
+// Create mocks base method.
+func (m *MockIUrl) Create(tx *gorm.DB, url string, expiredAt time.Time) (*database.Url, *errors.ServiceError) <span class="cov8" title="1">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "Create", tx, url, expiredAt)
+        ret0, _ := ret[0].(*database.Url)
+        ret1, _ := ret[1].(*errors.ServiceError)
+        return ret0, ret1
+}</span>
+
+// Create indicates an expected call of Create.
+func (mr *MockIUrlMockRecorder) Create(tx, url, expiredAt interface{}) *gomock.Call <span class="cov8" title="1">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockIUrl)(nil).Create), tx, url, expiredAt)
+}</span>
+
+// MockIHash is a mock of IHash interface.
+type MockIHash struct {
+        ctrl     *gomock.Controller
+        recorder *MockIHashMockRecorder
+}
+
+// MockIHashMockRecorder is the mock recorder for MockIHash.
+type MockIHashMockRecorder struct {
+        mock *MockIHash
+}
+
+// NewMockIHash creates a new mock instance.
+func NewMockIHash(ctrl *gomock.Controller) *MockIHash <span class="cov8" title="1">{
+        mock := &amp;MockIHash{ctrl: ctrl}
+        mock.recorder = &amp;MockIHashMockRecorder{mock}
+        return mock
+}</span>
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockIHash) EXPECT() *MockIHashMockRecorder <span class="cov8" title="1">{
+        return m.recorder
+}</span>
+
+// IDtoShortenID mocks base method.
+func (m *MockIHash) IDtoUrlID(id uint) (string, *errors.ServiceError) <span class="cov8" title="1">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "IDtoUrlID", id)
+        ret0, _ := ret[0].(string)
+        ret1, _ := ret[1].(*errors.ServiceError)
+        return ret0, ret1
+}</span>
+
+// IDtoShortenID indicates an expected call of IDtoShortenID.
+func (mr *MockIHashMockRecorder) IDtoShortenID(id interface{}) *gomock.Call <span class="cov8" title="1">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IDtoUrlID", reflect.TypeOf((*MockIHash)(nil).IDtoUrlID), id)
+}</span>
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package env
+
+import (
+        "fmt"
+        "os"
+        "strconv"
+)
+
+func Get(key string) string <span class="cov8" title="1">{
+        val := os.Getenv(key)
+        if val == "" </span><span class="cov8" title="1">{
+                panic(fmt.Errorf("key(%s) not found", key))</span>
+        }
+
+        <span class="cov8" title="1">return val</span>
+}
+
+func GetDefault(key string, defaultValue string) string <span class="cov8" title="1">{
+        value := os.Getenv(key)
+        if value == "" </span><span class="cov8" title="1">{
+                return defaultValue
+        }</span>
+
+        <span class="cov8" title="1">return value</span>
+}
+
+func GetDefaultInt(key string, defaultValue int) int <span class="cov8" title="1">{
+        val := os.Getenv(key)
+        if val == "" </span><span class="cov8" title="1">{
+                return defaultValue
+        }</span>
+
+        <span class="cov8" title="1">v, err := strconv.Atoi(val)
+        if err != nil </span><span class="cov8" title="1">{
+                panic(fmt.Errorf("[env] parse int failed key: %s, val:%s, err: %s", key, val, err))</span>
+        }
+
+        <span class="cov8" title="1">return v</span>
+}</pre>
+		
+		<pre class="file" id="file7" style="display: none">package url
+
+import (
+        "URLShortenerDemo/pkg/errors"
+        "URLShortenerDemo/service/database"
+        "fmt"
+        "github.com/sirupsen/logrus"
+        "gorm.io/gorm"
+        "time"
+)
+
+func (m *Module) Create(tx *gorm.DB, url string, expiredAt time.Time) (*database.Url, *errors.ServiceError) <span class="cov8" title="1">{
+        row := &amp;database.Url{
+                Url:       url,
+                ExpiredAt: expiredAt,
+        }
+        if err := tx.Create(row).Error; err != nil </span><span class="cov8" title="1">{
+                m.log.WithFields(logrus.Fields{
+                        "err": err,
+                        "row": fmt.Sprintf("%+v", row),
+                }).Error("[url] create failed")
+                return nil, errors.InsertDataBaseFailedError
+        }</span>
+
+        <span class="cov8" title="1">return row, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package url
+
+import (
+        "URLShortenerDemo/pkg/errors"
+        "URLShortenerDemo/service/database"
+        oriError "errors"
+        "github.com/sirupsen/logrus"
+        "gorm.io/gorm"
+)
+
+func (m *Module) Get(tx *gorm.DB, id uint) (*database.Url, *errors.ServiceError) <span class="cov8" title="1">{
+        row := &amp;database.Url{ID: id}
+        if err := tx.First(row).Error; err != nil </span><span class="cov8" title="1">{
+                if oriError.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                        m.log.WithField("id", id).Error("[url] not found error")
+                        return nil, errors.UrlNotFoundError
+                }</span>
+
+                <span class="cov8" title="1">m.log.WithFields(logrus.Fields{
+                        "err": err,
+                        "id":  id,
+                }).Error("[url] fetch url failed")
+                return nil, errors.FetchDatabaseFailedError</span>
+        }
+
+        <span class="cov8" title="1">return row, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package url
+
+import "github.com/sirupsen/logrus"
+
+type Module struct {
+        log *logrus.Logger
+}
+
+func New(log *logrus.Logger) *Module <span class="cov8" title="1">{
+        return &amp;Module{
+                log: log,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package hash
+
+import (
+        "URLShortenerDemo/pkg/errors"
+        "github.com/sirupsen/logrus"
+        "github.com/speps/go-hashids"
+)
+
+func (m *Module) IDtoUrlID(id uint) (string, *errors.ServiceError) <span class="cov8" title="1">{
+        hashID, _ := hashids.NewWithData(m.hd)
+        value, err := hashID.EncodeInt64([]int64{int64(id)})
+        if err != nil </span><span class="cov0" title="0">{
+                m.log.WithFields(logrus.Fields{
+                        "id":  id,
+                        "err": err,
+                }).Error("[hash] encode failed")
+                return "", errors.EncodeHashFailedError
+        }</span>
+        <span class="cov8" title="1">return value, nil</span>
+}
+
+func (m *Module) UrlIDtoID(urlId string) (uint, *errors.ServiceError) <span class="cov8" title="1">{
+        hashID, _ := hashids.NewWithData(m.hd)
+        numbers, err := hashID.DecodeInt64WithError(urlId)
+        if err != nil </span><span class="cov8" title="1">{
+                m.log.WithFields(logrus.Fields{
+                        "urlId": urlId,
+                        "err":   err,
+                }).Error("[hash] decode failed")
+                return 0, errors.UrlNotFoundError
+        }</span> else<span class="cov8" title="1"> if len(numbers) &lt;= 0 </span><span class="cov0" title="0">{
+                m.log.WithFields(logrus.Fields{
+                        "urlId": urlId,
+                        "err":   err,
+                }).Error("[hash] decode empty result")
+                return 0, errors.UrlNotFoundError
+        }</span>
+        <span class="cov8" title="1">return uint(numbers[0]), nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package hash
+
+import (
+        "URLShortenerDemo/pkg/env"
+        "github.com/sirupsen/logrus"
+        "github.com/speps/go-hashids"
+)
+
+type Module struct {
+        log *logrus.Logger
+        hd  *hashids.HashIDData
+}
+
+func New(log *logrus.Logger) *Module <span class="cov8" title="1">{
+        hd := hashids.NewData()
+        hd.Salt = env.GetDefault("hash_salt", "url_shortener_demo")
+
+        return &amp;Module{
+                log: log,
+                hd:  hd,
+        }
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

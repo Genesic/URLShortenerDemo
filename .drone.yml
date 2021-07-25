@@ -5,6 +5,8 @@ steps:
 - name: test
   image: golang:1.16
   command:
+    - go mod tidy
+    - go mod vendor
     - go test ./...
     - go build
 

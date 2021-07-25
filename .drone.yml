@@ -4,9 +4,8 @@ name: test
 steps:
 - name: test
   image: golang:1.16
-  environment:
-    GO111MODULE: on
   command:
+    - go version
     - go mod tidy
     - go mod vendor
     - go test ./...
